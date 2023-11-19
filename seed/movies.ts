@@ -82,29 +82,29 @@ export const movieCasts: MovieCast[] = [
   },
 ];
 
-export const moviesReviews = [
+export const moviesReviews: MovieReview[] = [
   {
-    MovieId: 1234,  
-    ReviewerName: "JohnDoe",
-    ReviewDate: "2023-11-17",
-    Content: "This movie is amazing!",
+    movieId: 1234,  
+    reviewerName: "JohnDoe",
+    reviewDate: "2023-11-17",
+    content: "This movie is amazing!",
   },
   {
-    MovieId: 4567, 
-    ReviewerName: "SamMurphy",
-    ReviewDate: "2023-09-19",
-    Content: "A must-watch film!",
+    movieId: 4567, 
+    reviewerName: "SamMurphy",
+    reviewDate: "2023-09-19",
+    content: "A must-watch film!",
   },
   {
-    MovieId: 2345,  
-    ReviewerName: "JaneSmith",
-    ReviewDate: "2023-10-11",
-    Content: "Not a bad movie",
+    movieId: 2345,  
+    reviewerName: "JaneSmith",
+    reviewDate: "2023-10-11",
+    content: "Not a bad movie",
   },
   {
-    MovieId: 3456, 
-    ReviewerName: "SamFoley",
-    ReviewDate: "2023-06-25",
-    Content: "Didn't live up to the expectations",
+    movieId: 3456, 
+    reviewerName: "SamFoley",
+    reviewDate: "2023-06-25",
+    content: "Didn't live up to the expectations",
   },
 ];

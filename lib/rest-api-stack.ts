@@ -192,6 +192,8 @@ export class RestAPIStack extends cdk.Stack {
       },
     });
 
+    
+
     const moviesEndpoint = api.root.addResource("movies");
     moviesEndpoint.addMethod(
       "GET",
@@ -217,12 +219,11 @@ export class RestAPIStack extends cdk.Stack {
     );
 
     // REVIEWS ENDPOINT - GET
-    const movieReviewsEndpoint = moviesEndpoint.addResource("review");
+    const movieReviewsEndpoint = movieEndpoint.addResource("reviews");
     movieReviewsEndpoint.addMethod(
       "GET",
       new apig.LambdaIntegration(getMovieReviewsFn, { proxy: true })
     );
-  
 
     movieEndpoint.addMethod(
       "DELETE",
