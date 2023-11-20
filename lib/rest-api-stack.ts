@@ -146,6 +146,7 @@ export class RestAPIStack extends cdk.Stack {
           RequestItems: {
             [moviesTable.tableName]: generateBatch(movies),
             [movieCastsTable.tableName]: generateBatch(movieCasts),  // Added
+            [movieReviewsTable.tableName]: generateBatch(moviesReviews), //Include Movie Reviews ---------------------------
           },
         },
         physicalResourceId: custom.PhysicalResourceId.of("moviesddbInitData"), //.of(Date.now().toString()),
