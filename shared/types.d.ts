@@ -17,6 +17,7 @@ export type Movie = {
     reviewerName: string;
     reviewDate: string;
     content: string;
+    rating: number;
   };
 
   export type MovieCast = {
