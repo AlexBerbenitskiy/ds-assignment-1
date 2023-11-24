@@ -33,8 +33,9 @@ export type Movie = {
   }
 
   export type MovieReviewQueryParams = {
-    movieId: string;
+    movieId: number;
     reviewerName?: string;
     reviewDate?: string;
-    // Add other parameters as needed
   };
+
+  
