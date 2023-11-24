@@ -30,19 +30,25 @@ export class RestAPIStack extends cdk.Stack {
       tableName: "MovieCast",
     });
 
-    //Review Table
-    const movieReviewsTable = new dynamodb.Table(this, "MovieReviewTable", {
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      partitionKey: { name: "movieId", type: dynamodb.AttributeType.NUMBER },
-      sortKey: { name: "reviewerName", type: dynamodb.AttributeType.STRING },
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      tableName: "MovieReview",
-    });
+    // Review Table
+const movieReviewsTable = new dynamodb.Table(this, "MovieReviewTable", {
+  billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+  partitionKey: { name: "movieId", type: dynamodb.AttributeType.NUMBER },
+  sortKey: { name: "reviewDate", type: dynamodb.AttributeType.STRING },
+  removalPolicy: cdk.RemovalPolicy.DESTROY,
+  tableName: "MovieReview",
+});
 
-    movieReviewsTable.addLocalSecondaryIndex({
-      indexName: "reviewIx",
-      sortKey: { name: "reviewerName", type: dynamodb.AttributeType.STRING },
-    });
+movieReviewsTable.addLocalSecondaryIndex({
+  indexName: "reviewIx",
+  sortKey: { name: "reviewerName", type: dynamodb.AttributeType.STRING },
+});
+
+movieReviewsTable.addGlobalSecondaryIndex({
+  indexName: "ratingIndex",
+  partitionKey: { name: "rating", type: dynamodb.AttributeType.NUMBER },
+  projectionType: dynamodb.ProjectionType.ALL,
+});
 
 
     movieCastsTable.addLocalSecondaryIndex({

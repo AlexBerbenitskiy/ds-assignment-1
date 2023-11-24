@@ -37,6 +37,7 @@ export type Movie = {
     movieId: number;
     reviewerName?: string;
     reviewDate?: string;
+    minRating?: number; 
   };
-
+  
   
