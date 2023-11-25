@@ -136,6 +136,23 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
         },
       }
     );
+
+    // get reviewer function
+    const getMovieReviewerAllFn = new lambdanode.NodejsFunction(
+      this,
+      "GetMovieReviewerAllFn",
+      {
+        architecture: lambda.Architecture.ARM_64,
+        runtime: lambda.Runtime.NODEJS_16_X,
+        entry: `${__dirname}/../lambdas/getMovieReviewerAll.ts`, 
+        timeout: cdk.Duration.seconds(10),
+        memorySize: 128,
+        environment: {
+          TABLE_NAME: movieReviewsTable.tableName,
+          REGION: 'eu-west-1',
+        },
+      }
+    );
       
       const getAllMoviesFn = new lambdanode.NodejsFunction(
         this,
@@ -228,7 +245,9 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
         movieReviewsTable.grantReadData(getMovieReviewerFn);
         movieReviewsTable.grantReadWriteData(getMovieReviewerTranslatedFn);
         movieReviewsTable.grantReadWriteData(newReviewFn);
-        
+        movieReviewsTable.grantReadData(getMovieReviewerAllFn);
+
+
           // REST API 
     const api = new apig.RestApi(this, "RestAPI", {
       description: "demo api",
@@ -297,18 +316,26 @@ movieReviewsEndpoint.addMethod(
   new apig.LambdaIntegration(newReviewFn, { proxy: true })
 );
 
-// Reviews GET Reviewer's Reviews
+// Reviews GET Reviewer's Reviews with movieId
 const specificReviewerEndpoint = movieReviewsEndpoint.addResource("{reviewerName}");
 specificReviewerEndpoint.addMethod(
   "GET",
   new apig.LambdaIntegration(getMovieReviewerFn, { proxy: true })
 );
 
+
 // REVIEWS TRANSLATE
 const translationEndpoint = specificReviewerEndpoint.addResource("translation");
 translationEndpoint.addMethod(
   "GET",
   new apig.LambdaIntegration(getMovieReviewerTranslatedFn, { proxy: true })
+);
+
+// NEW ENDPOINT: Reviews GET Reviewer's Reviews without movieId
+const reviewsWithoutMovieIdEndpoint = movieReviewsEndpoint.addResource("reviews");
+reviewsWithoutMovieIdEndpoint.addMethod(
+  "GET",
+  new apig.LambdaIntegration(getMovieReviewerAllFn, { proxy: true })
 );
       }
       
