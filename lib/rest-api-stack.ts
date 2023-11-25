@@ -110,7 +110,7 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
   {
     architecture: lambda.Architecture.ARM_64,
     runtime: lambda.Runtime.NODEJS_16_X,
-    entry: `${__dirname}/../lambdas/getMovieReviewer.ts`, // Change the filename accordingly
+    entry: `${__dirname}/../lambdas/getMovieReviewer.ts`, 
     timeout: cdk.Duration.seconds(10),
     memorySize: 128,
     environment: {
@@ -119,6 +119,23 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
     },
   }
 );
+
+    // get reviewer function
+    const getMovieReviewerTranslatedFn = new lambdanode.NodejsFunction(
+      this,
+      "GetMovieReviewerTranslatedFn",
+      {
+        architecture: lambda.Architecture.ARM_64,
+        runtime: lambda.Runtime.NODEJS_16_X,
+        entry: `${__dirname}/../lambdas/translate.ts`, 
+        timeout: cdk.Duration.seconds(10),
+        memorySize: 128,
+        environment: {
+          TABLE_NAME: movieReviewsTable.tableName,
+          REGION: 'eu-west-1',
+        },
+      }
+    );
       
       const getAllMoviesFn = new lambdanode.NodejsFunction(
         this,
@@ -162,7 +179,7 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
           RequestItems: {
             [moviesTable.tableName]: generateBatch(movies),
             [movieCastsTable.tableName]: generateBatch(movieCasts),  // Added
-            [movieReviewsTable.tableName]: generateBatch(moviesReviews), //Include Movie Reviews ---------------------------
+            [movieReviewsTable.tableName]: generateBatch(moviesReviews), //Include Movie Reviews 
           },
         },
         physicalResourceId: custom.PhysicalResourceId.of("moviesddbInitData"), //.of(Date.now().toString()),
@@ -209,6 +226,7 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
         movieCastsTable.grantReadData(getMovieCastMembersFn);
         movieReviewsTable.grantReadData(getMovieReviewsFn);
         movieReviewsTable.grantReadData(getMovieReviewerFn);
+        movieReviewsTable.grantReadWriteData(getMovieReviewerTranslatedFn);
         movieReviewsTable.grantReadWriteData(newReviewFn);
         
           // REST API 
@@ -229,6 +247,8 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
     
 
     const moviesEndpoint = api.root.addResource("movies");
+
+
     moviesEndpoint.addMethod(
       "GET",
       new apig.LambdaIntegration(getAllMoviesFn, { proxy: true })
@@ -256,30 +276,39 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
       new apig.LambdaIntegration(getMovieCastMembersFn, { proxy: true })
     );
 
-    // REVIEWS ENDPOINT - GET
-    const movieReviewsEndpoint = movieEndpoint.addResource("reviews");
-    movieReviewsEndpoint.addMethod(
-      "GET",
-      new apig.LambdaIntegration(getMovieReviewsFn, { proxy: true })
-    );
-
     movieEndpoint.addMethod(
       "DELETE",
       new apig.LambdaIntegration(deleteMovieFn, { proxy: true })
     );
 
-
-    // NEW
-    movieReviewsEndpoint.addMethod(
-      "POST",
-      new apig.LambdaIntegration(newReviewFn, { proxy: true })
-    );
     
+    // REVIEWS ENDPOINT
 
-    const specificReviewerEndpoint = movieReviewsEndpoint.addResource("{reviewerName}");
-    specificReviewerEndpoint.addMethod(
+// Reviews - GET Reviews
+const movieReviewsEndpoint = movieEndpoint.addResource("reviews");
+movieReviewsEndpoint.addMethod(
+  "GET",
+  new apig.LambdaIntegration(getMovieReviewsFn, { proxy: true })
+);
+
+// Reviews POST
+movieReviewsEndpoint.addMethod(
+  "POST",
+  new apig.LambdaIntegration(newReviewFn, { proxy: true })
+);
+
+// Reviews GET Reviewer's Reviews
+const specificReviewerEndpoint = movieReviewsEndpoint.addResource("{reviewerName}");
+specificReviewerEndpoint.addMethod(
   "GET",
   new apig.LambdaIntegration(getMovieReviewerFn, { proxy: true })
+);
+
+// REVIEWS TRANSLATE
+const translationEndpoint = specificReviewerEndpoint.addResource("translation");
+translationEndpoint.addMethod(
+  "GET",
+  new apig.LambdaIntegration(getMovieReviewerTranslatedFn, { proxy: true })
 );
       }
       

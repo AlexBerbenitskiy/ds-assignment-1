@@ -81,7 +81,7 @@ function createDocumentClient() {
 }
 
 function isValidPathParams(pathParams: any) {
-  // Add validation logic for path parameters if needed
+  // To add validation logic Later
   // For example, ensure that movieId is a valid number
   return true;
 }
