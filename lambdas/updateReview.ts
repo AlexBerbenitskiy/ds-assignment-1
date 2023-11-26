@@ -11,7 +11,6 @@ const ddbDocClient = createDDbDocClient();
 
 export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
   try {
-    // Print Event
     console.log("Event: ", event);
 
     const body = event.body ? JSON.parse(event.body) : undefined;
@@ -38,7 +37,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
       };
     }
 
-    // Extract movieId and reviewerName from path parameters
     const pathParams = event.pathParameters;
     if (!pathParams || !isValidPathParams(pathParams)) {
       return {
@@ -55,7 +53,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     const movieId = parseInt(pathParams.movieId ?? "0");
     const reviewerName = pathParams.reviewerName;
 
-    // Check if the review exists
     const existingReview = await ddbDocClient.send(
       new GetCommand({
         TableName: process.env.TABLE_NAME,
@@ -76,7 +73,6 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
       };
     }
 
-    // Update the content of the review in the DynamoDB table
     const commandOutput = await ddbDocClient.send(
       new PutCommand({
         TableName: process.env.TABLE_NAME,
@@ -122,6 +118,5 @@ function createDDbDocClient() {
 }
 
 function isValidPathParams(pathParams: any) {
-  // Add validation logic for path parameters if needed
   return true;
 }
