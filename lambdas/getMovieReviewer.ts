@@ -33,15 +33,33 @@ export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
     }
 
     const movieId = parseInt(pathParams.movieId ?? "0");
-    const reviewerName = pathParams.reviewerName;
+    const param = pathParams.reviewerNameOrYear!;
 
-    let commandInput: GetCommandInput = {
-      TableName: process.env.TABLE_NAME,
-      Key: {
-        movieId: movieId,
-        reviewerName: reviewerName,
-      },
-    };
+    let commandInput: any;
+
+    // Check if the parameter is a valid year using regex
+    const isYear = /^\d{4}$/.test(param);
+
+    if (isYear) {
+      // Fetch reviews by year
+commandInput = {
+  TableName: process.env.TABLE_NAME,
+  KeyConditionExpression: "movieId = :movieId AND begins_with(reviewerName, :year)",
+  ExpressionAttributeValues: {
+    ":movieId": movieId,
+    ":year": param,
+  },
+};
+    } else {
+      // Fetch reviews by reviewerName
+      commandInput = {
+        TableName: process.env.TABLE_NAME,
+        Key: {
+          movieId: movieId,
+          reviewerName: param,
+        },
+      };
+    }
 
     const commandOutput = await ddbDocClient.send(new GetCommand(commandInput));
 

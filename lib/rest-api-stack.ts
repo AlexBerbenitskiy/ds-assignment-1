@@ -317,12 +317,11 @@ movieReviewsEndpoint.addMethod(
 );
 
 // Reviews GET Reviewer's Reviews with movieId
-const specificReviewerEndpoint = movieReviewsEndpoint.addResource("{reviewerName}");
+const specificReviewerEndpoint = movieReviewsEndpoint.addResource("{reviewerNameOrYear}");
 specificReviewerEndpoint.addMethod(
   "GET",
   new apig.LambdaIntegration(getMovieReviewerFn, { proxy: true })
 );
-
 
 // REVIEWS TRANSLATE
 const translationEndpoint = specificReviewerEndpoint.addResource("translation");
