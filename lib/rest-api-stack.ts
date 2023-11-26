@@ -218,12 +218,28 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
           },
         });
 
+        
+
 
         //POST REVIEW 
         const newReviewFn = new lambdanode.NodejsFunction(this, "addMovieReviewFn", {
           architecture: lambda.Architecture.ARM_64,
           runtime: lambda.Runtime.NODEJS_16_X,
           entry: `${__dirname}/../lambdas/addReview.ts`,
+          timeout: cdk.Duration.seconds(10),
+          memorySize: 128,
+          environment: {
+            TABLE_NAME: movieReviewsTable.tableName,
+            REGION: "eu-west-1",
+          },
+        });
+
+        
+        //UPDATE REVIEW 
+        const updateReviewFn = new lambdanode.NodejsFunction(this, "updateMovieReviewFn", {
+          architecture: lambda.Architecture.ARM_64,
+          runtime: lambda.Runtime.NODEJS_16_X,
+          entry: `${__dirname}/../lambdas/updateReview.ts`,
           timeout: cdk.Duration.seconds(10),
           memorySize: 128,
           environment: {
@@ -245,6 +261,7 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
         movieReviewsTable.grantReadData(getMovieReviewerFn);
         movieReviewsTable.grantReadWriteData(getMovieReviewerTranslatedFn);
         movieReviewsTable.grantReadWriteData(newReviewFn);
+        movieReviewsTable.grantReadWriteData(updateReviewFn);
         movieReviewsTable.grantReadData(getMovieReviewerAllFn);
 
 
@@ -301,7 +318,7 @@ const getMovieReviewerFn = new lambdanode.NodejsFunction(
     );
 
     
-    // REVIEWS ENDPOINT
+   // REVIEWS ENDPOINT
 
 // Reviews - GET Reviews
 const movieReviewsEndpoint = movieEndpoint.addResource("reviews");
@@ -323,7 +340,6 @@ specificReviewerEndpoint.addMethod(
   new apig.LambdaIntegration(getMovieReviewerFn, { proxy: true })
 );
 
-
 // REVIEWS TRANSLATE
 const translationEndpoint = specificReviewerEndpoint.addResource("translation");
 translationEndpoint.addMethod(
@@ -336,6 +352,13 @@ const reviewsWithoutMovieIdEndpoint = movieReviewsEndpoint.addResource("reviews"
 reviewsWithoutMovieIdEndpoint.addMethod(
   "GET",
   new apig.LambdaIntegration(getMovieReviewerAllFn, { proxy: true })
+);
+
+// REVIEWS UPDATE Review
+const updateReviewEndpoint = specificReviewerEndpoint.addResource("update");
+updateReviewEndpoint.addMethod(
+  "PUT",
+  new apig.LambdaIntegration(updateReviewFn, { proxy: true })
 );
       }
       
